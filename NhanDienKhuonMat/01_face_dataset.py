@@ -1,3 +1,4 @@
+
 import cv2
 import os
 
@@ -8,10 +9,16 @@ if not cam.isOpened():
 cam.set(3, 640) # set video width
 cam.set(4, 480) # set video height
 
-face_detector = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+face_detector = cv2.CascadeClassifier(os.path.join(os.path.dirname(__file__), 'haarcascade_frontalface_default.xml'))
 
-# For each person, enter one numeric face id
-face_id = input('\n enter user id end press <return> ==>  ')
+
+# Nhập tên thư mục nhân viên và user id
+employee_folder = input('\nEnter employee folder name (e.g., nhanvienduy, nhanvienduc): ')
+face_id = input('Enter user id and press <return>: ')
+
+# Đường dẫn tuyệt đối tới thư mục dataset trong cùng thư mục với script
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATASET_DIR = os.path.join(BASE_DIR, 'dataset')
 
 print("\n [INFO] Initializing face capture. Look the camera and wait ...")
 # Initialize individual sampling face count
@@ -32,18 +39,20 @@ while(True):
         cv2.rectangle(img, (x,y), (x+w,y+h), (255,0,0), 2)
         
         # Tự động chụp ảnh khi phát hiện khuôn mặt
+
         if count < 200:  # Chỉ chụp khi chưa đủ 200 ảnh
             # Tạo thư mục nếu chưa tồn tại
-            if not os.path.exists('dataset'):
-                os.makedirs('dataset')
-                
-            # Lưu ảnh vào thư mục dataset
-            filename = f"dataset/User.{face_id}.{count + 1}.jpg"
+            save_dir = os.path.join(DATASET_DIR, employee_folder)
+            if not os.path.exists(save_dir):
+                os.makedirs(save_dir)
+
+            # Lưu ảnh vào thư mục dataset/<employee_folder>
+            filename = os.path.join(save_dir, f"User.{face_id}.{count + 1}.jpg")
             face_img = gray[y:y+h, x:x+w]
-            
+
             # Kiểm tra và lưu ảnh
             save_success = cv2.imwrite(filename, face_img)
-            
+
             if save_success:
                 count += 1
                 # Hiển thị thông báo chụp ảnh thành công

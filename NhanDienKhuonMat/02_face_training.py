@@ -25,24 +25,37 @@ detector = cv2.CascadeClassifier("haarcascade_frontalface_default.xml");
 
 # function to get the images and label data
 def getImagesAndLabels(path):
+    imagePaths = []
+    # Duyệt đệ quy tất cả file trong các thư mục con
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            if file.lower().endswith(('.jpg', '.jpeg', '.png')):
+                imagePaths.append(os.path.join(root, file))
 
-    imagePaths = [os.path.join(path,f) for f in os.listdir(path)]     
-    faceSamples=[]
+    faceSamples = []
     ids = []
 
     for imagePath in imagePaths:
+        try:
+            PIL_img = Image.open(imagePath).convert('L') # convert it to grayscale
+        except Exception as e:
+            print(f"[WARNING] Could not open {imagePath}: {e}")
+            continue
+        img_numpy = np.array(PIL_img, 'uint8')
 
-        PIL_img = Image.open(imagePath).convert('L') # convert it to grayscale
-        img_numpy = np.array(PIL_img,'uint8')
-
-        id = int(os.path.split(imagePath)[-1].split(".")[1])
+        # Lấy id từ tên file: User.<id>.<count>.jpg
+        try:
+            id = int(os.path.split(imagePath)[-1].split(".")[1])
+        except Exception as e:
+            print(f"[WARNING] Could not parse id from {imagePath}: {e}")
+            continue
         faces = detector.detectMultiScale(img_numpy)
 
-        for (x,y,w,h) in faces:
-            faceSamples.append(img_numpy[y:y+h,x:x+w])
+        for (x, y, w, h) in faces:
+            faceSamples.append(img_numpy[y:y + h, x:x + w])
             ids.append(id)
 
-    return faceSamples,ids
+    return faceSamples, ids
 
 print ("\n [INFO] Training faces. It will take a few seconds. Wait ...")
 faces,ids = getImagesAndLabels(path)

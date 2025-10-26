@@ -92,6 +92,8 @@ Xem lịch sử & Thống kê: Theo dõi dữ liệu điểm danh.
 
 Điểm danh (Demo): Bật/tắt camera để thử nghiệm nhận diện trên web.
 
+(Ghi chú: Chức năng thu thập ảnh (trước đây là 01_face_dataset.py) và huấn luyện mô hình (trước đây là 02_face_training.py) đã được tích hợp vào ứng dụng web trong menu "Thêm nhân viên" và không cần chạy riêng nữa.)
+
 2. Chạy Script điểm danh liên tục (03_face_recognition.py)
 Script này dùng cho máy chấm công thực tế, chạy camera liên tục.
 

@@ -1,7 +1,7 @@
 ### 🏷️ Tên nhóm
-    Nhóm 28
+Nhóm 28
 ### 📝 Tên dự án
-    Hệ thống điểm danh nhân viên bằng camera
+Hệ thống điểm danh nhân viên bằng camera
 ### 👥 Thành viên nhóm
 | 👤 Họ và tên 🧑‍🎓  | 🆔 Mã sinh viên 🧾 | 🐙 Tên GitHub 🔗     |
 |------------------|---------------------|---------------------|

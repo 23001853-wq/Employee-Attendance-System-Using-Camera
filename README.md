@@ -1,86 +1,111 @@
-# Quá trình hoàn thiện phần nhận diện khuôn mặt
+# Hệ thống Điểm danh bằng Nhận diện Khuôn mặt
 
-## 1. Thu thập dữ liệu khuôn mặt
-- Chạy file `01_face_dataset.py`.
-- Nhập tên thư mục nhân viên (ví dụ: nhanvienduy, nhanvienduc) và user id tương ứng.
-- Hệ thống sẽ tự động chụp và lưu ảnh khuôn mặt vào đúng thư mục trong `dataset/`.
-- Mỗi nhân viên nên thu thập từ 50–200 ảnh với nhiều góc mặt, ánh sáng khác nhau.
+Dự án xây dựng hệ thống điểm danh tự động sử dụng camera và thuật toán nhận diện khuôn mặt (OpenCV LBPH), tích hợp với cơ sở dữ liệu SQL Server và giao diện quản lý bằng Streamlit.
 
-## 2. Huấn luyện mô hình nhận diện
-- Chạy file `02_face_training.py`.
-- Script sẽ tự động duyệt toàn bộ ảnh trong các thư mục con của `dataset/`.
-- Mỗi ảnh phải có tên theo định dạng: `User.<id>.<số thứ tự>.jpg`.
-- Mô hình được huấn luyện và lưu vào `trainer/trainer.yml`.
+---
 
-## 3. Nhận diện khuôn mặt và điểm danh
-- Chạy file `03_face_recognition.py`.
-- Khi camera nhận diện được khuôn mặt, hệ thống sẽ dựa vào id để hiển thị đúng tên nhân viên (cấu hình trong biến `names`).
-- Nếu khuôn mặt không khớp, sẽ hiển thị là "unknown".
+## ✨ Tính năng chính
 
+* **Quản lý nhân viên:** Thêm, xem, sửa, xóa thông tin nhân viên qua giao diện web.
+* **Thu thập dữ liệu ảnh:** Chụp 5 ảnh khuôn mặt trực tiếp từ trình duyệt web cho mỗi nhân viên mới.
+* **Huấn luyện mô hình:** Tự động huấn luyện mô hình nhận diện LBPH từ dữ liệu ảnh đã thu thập.
+* **Điểm danh tự động (Script):** Chạy script Python (`03_face_recognition.py`) để camera hoạt động liên tục, tự động nhận diện và ghi giờ check-in/check-out vào CSDL.
+* **Điểm danh (Web - Tùy chọn):** Chức năng bật/tắt camera điểm danh trực tiếp trên giao diện web (dùng cho demo hoặc quản lý).
+* **Xem lịch sử:** Xem lịch sử điểm danh chi tiết theo từng nhân viên hoặc theo ngày.
+* **Thống kê:** Xem tổng hợp thời gian làm việc của nhân viên và xuất báo cáo Excel.
 
-## HƯỚNG DẪN TẠO VÀ KẾT NỐI DATABASE SQL SERVER
+---
 
-### 1. Tạo Database và Bảng
+## ⚙️ Cài đặt
 
-**Bước 1:** Mở SQL Server Management Studio (SSMS) hoặc công cụ quản lý SQL Server.
+### 1. Yêu cầu hệ thống
 
-**Bước 2:** Tạo database mới tên `NhanDienKhuonMat`:
+* Python 3.8+
+* SQL Server (và SQL Server Management Studio hoặc công cụ tương tự)
+* Driver `ODBC Driver 17 for SQL Server` (hoặc phiên bản tương thích)
 
-```sql
-CREATE DATABASE NhanDienKhuonMat;
-```
+### 2. Cài đặt Database
 
-**Bước 3:** Chọn database vừa tạo, tạo bảng nhân viên và bảng điểm danh:
+1.  Mở SQL Server Management Studio (SSMS).
+2.  Tạo database mới tên `NhanDienKhuonMat`:
+    ```sql
+    CREATE DATABASE NhanDienKhuonMat;
+    ```
+3.  Chọn database vừa tạo, chạy script sau để tạo bảng:
+    ```sql
+    -- Bảng lưu thông tin nhân viên
+    CREATE TABLE Employees (
+        Id INT PRIMARY KEY IDENTITY(1,1), -- ID tự tăng
+        Name NVARCHAR(100) NOT NULL,    -- Tên nhân viên
+        Department NVARCHAR(100),       -- Phòng ban
+        PhotoPath NVARCHAR(255),        -- Đường dẫn ảnh đại diện (avatar)
+        CreatedAt DATETIME DEFAULT GETDATE() -- Thời gian tạo (tùy chọn)
+    );
 
-```sql
-CREATE TABLE Employees (
-	Id INT PRIMARY KEY IDENTITY(1,1),
-	Name NVARCHAR(100),
-	Department NVARCHAR(100),
-	Photo NVARCHAR(255)
-);
+    -- Bảng lưu lịch sử điểm danh
+    CREATE TABLE Attendance (
+        Id INT PRIMARY KEY IDENTITY(1,1), -- ID tự tăng
+        EmpId INT NOT NULL,              -- ID của nhân viên (khóa ngoại)
+        Date DATE NOT NULL,              -- Ngày điểm danh
+        TimeIn TIME,                     -- Giờ check-in
+        TimeOut TIME,                    -- Giờ check-out
+        FOREIGN KEY (EmpId) REFERENCES Employees(Id) -- Liên kết với bảng Employees
+          ON DELETE CASCADE -- Tùy chọn: Tự động xóa lịch sử nếu nhân viên bị xóa
+    );
+    ```
 
-CREATE TABLE Attendance (
-	Id INT PRIMARY KEY IDENTITY(1,1),
-	EmpId INT,
-	Date DATE,
-	TimeIn TIME,
-	TimeOut TIME,
-	FOREIGN KEY (EmpId) REFERENCES Employees(Id)
-);
-```
+### 3. Cài đặt thư viện Python
 
-### 2. Cấu hình kết nối trong Python
+1.  Tạo môi trường ảo (khuyến nghị):
+    ```bash
+    python -m venv .venv
+    source .venv/bin/activate # Linux/macOS
+    .\.venv\Scripts\activate # Windows
+    ```
+2.  Cài đặt các thư viện cần thiết từ file `requirements.txt`:
+    ```bash
+    pip install -r requirements.txt
 
-**Bước 1:** Đảm bảo đã cài đặt driver ODBC cho SQL Server (`ODBC Driver 17 for SQL Server`).
+## ▶️ Hướng dẫn sử dụng
 
-**Bước 2:** Cài đặt thư viện `pyodbc`:
+### 1. Chạy ứng dụng Web quản lý (`Attendace.py`)
 
+Mở terminal trong thư mục dự án và chạy lệnh:
 ```bash
-pip install pyodbc
-```
+streamlit run Attendace.py
+Trình duyệt sẽ tự động mở trang web quản lý. Tại đây bạn có thể:
 
-**Bước 3:** Cấu hình chuỗi kết nối trong các file Python:
+Thêm nhân viên: Nhập thông tin, chụp 5 ảnh, và huấn luyện mô hình.
 
-```python
-server = '.'  # hoặc '.\\SQLEXPRESS' nếu dùng bản Express
-database = 'NhanDienKhuonMat'
-driver = '{ODBC Driver 17 for SQL Server}'
+Xem/Sửa/Xóa nhân viên: Quản lý danh sách nhân viên.
 
-def get_connection():
-	return pyodbc.connect(
-		f'DRIVER={driver};SERVER={server};DATABASE={database};Trusted_Connection=yes;'
-	)
-```
+Xem lịch sử & Thống kê: Theo dõi dữ liệu điểm danh.
 
-### 3. Kiểm tra hoạt động
+Điểm danh (Demo): Bật/tắt camera để thử nghiệm nhận diện trên web.
 
-1. Chạy các file Python (`Attendace.py`, `03_face_recognition.py`) để kiểm tra kết nối và ghi dữ liệu.
-2. Nếu có lỗi kết nối, kiểm tra lại tên server, database, driver ODBC và quyền truy cập.
+2. Chạy Script điểm danh liên tục (03_face_recognition.py)
+Script này dùng cho máy chấm công thực tế, chạy camera liên tục.
 
-### 4. Lưu ý
+Bash
 
-- Đảm bảo SQL Server đang chạy và cho phép kết nối từ Python.
-- Nếu dùng tài khoản SQL, thay `Trusted_Connection=yes` bằng `UID=...;PWD=...`.
-- Có thể kiểm tra dữ liệu trực tiếp trong SSMS sau khi điểm danh.
+python 03_face_recognition.py
+Camera sẽ mở và tự động nhận diện, ghi log check-in/check-out vào terminal và CSDL.
 
+Nhấn ESC trong cửa sổ camera để dừng script.
+
+Script sẽ tự động check-out cho những ai chưa check-out và dừng khi đến giờ CHECKOUT_TIME (mặc định là 23:00).
+
+🛠️ Công nghệ sử dụng
+Ngôn ngữ: Python
+
+Nhận diện khuôn mặt: OpenCV (Haar Cascade, LBPH)
+
+Giao diện Web: Streamlit
+
+Cơ sở dữ liệu: Microsoft SQL Server
+
+Kết nối CSDL: PyODBC
+
+Xử lý dữ liệu: Pandas, NumPy
+
+Xử lý ảnh: Pillow

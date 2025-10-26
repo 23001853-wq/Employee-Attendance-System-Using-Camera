@@ -465,7 +465,7 @@ def opencv_attendance_streamlit():
 
     COOLDOWN_SECONDS = 15
     MIN_WORK_SECONDS = 30
-    NGUONG_TIN_CAY = 65 # Ngưỡng tin cậy (thấp hơn là tốt hơn)
+    NGUONG_TIN_CAY = 38 # Ngưỡng tin cậy (thấp hơn là tốt hơn)
 
     col1, col2 = st.columns(2)
     with col1:

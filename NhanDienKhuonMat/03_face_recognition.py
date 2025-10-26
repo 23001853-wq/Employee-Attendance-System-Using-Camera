@@ -94,8 +94,8 @@ while True:
     # === Nhận diện khuôn mặt ===
     for (x, y, w, h) in faces:
         id, confidence = recognizer.predict(gray[y:y + h, x:x + w])
-        
-        if confidence < 70:
+        # print(f"ID: {id}, Confidence: {confidence:.2f}")
+        if confidence < 38:
             name = names[id] if id < len(names) else "Unknown"
             cv2.putText(img, f"{name}", (x + 5, y - 5), font, 1, (255, 255, 255), 2)
             cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)

@@ -115,10 +115,10 @@ def get_timein_by_name_and_date(name: str, date_str: str):
 
 # ====== TEST ======
 if __name__ == "__main__":
-    #create_employee("Duy","Phòng AI","User.1.1.jpg")
+    #create_employee("BaoTreTrau","Hoc sinh","User.1.1.jpg")
     read_employees()
     delete_employee(1)
-    result = get_timein_by_name_and_date("BIMBIM", "26/10/2025")
+    result = get_timein_by_name_and_date("DuyDepTrai", "26/10/2025")
     if result:
         print(f"🕒 Nhân viên Duy điểm danh vào: {result}")
     read_employees()

@@ -1,3 +1,12 @@
+### 🏷️ Tên nhóm
+    Nhóm 28
+### 📝 Tên dự án
+    Hệ thống điểm danh nhân viên bằng camera
+### 👥 Thành viên nhóm
+| 👤 Họ và tên 🧑‍🎓  | 🆔 Mã sinh viên 🧾 | 🐙 Tên GitHub 🔗     |
+|------------------|---------------------|---------------------|
+| [Nguyễn Hữu Duy]      | [23001853]    | [23001853-wq]      |
+
 # Hệ thống Điểm danh bằng Nhận diện Khuôn mặt
 
 Dự án xây dựng hệ thống điểm danh tự động sử dụng camera và thuật toán nhận diện khuôn mặt (OpenCV LBPH), tích hợp với cơ sở dữ liệu SQL Server và giao diện quản lý bằng Streamlit.

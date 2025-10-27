@@ -3,40 +3,38 @@ import numpy as np
 from PIL import Image
 import os
 
-# Path for face image database
+# Trỏ đến dataset
 path = 'dataset'
 
 # Kiểm tra module face
 try:
-    recognizer = cv2.face.LBPHFaceRecognizer_create()
-    print("LBPH Face Recognizer created successfully.")
+    # Sử dụng thuật toán LBPH (Local Binary Patterns Histograms) nhận diện khuôn mặt
+    recognizer = cv2.face.LBPHFaceRecognizer_create() 
+    print("Đã tạo thành công công cụ nhận diện khuôn mặt LBPH.")
 except AttributeError:
     print("cv2.face module is not available. Vui lòng cài đặt opencv-contrib-python.")
     exit()
 
-# === BỎ DÒNG NÀY ĐI ===
-# detector = cv2.CascadeClassifier("haarcascade_frontalface_default.xml");
-
-# function to get the images and label data
+# hàm lấy dữ liệu từ dataset
 def getImagesAndLabels(path):
     imagePaths = []
     # Duyệt đệ quy tất cả file trong các thư mục con
     for root, dirs, files in os.walk(path):
         for file in files:
             if file.lower().endswith(('.jpg', '.jpeg', '.png')):
-                imagePaths.append(os.path.join(root, file))
+                imagePaths.append(os.path.join(root, file)) #Thêm đường dẫn đầy đủ của ảnh vào danh sách.
 
     faceSamples = []
     ids = []
 
     for imagePath in imagePaths:
         try:
-            PIL_img = Image.open(imagePath).convert('L') # convert it to grayscale
+            PIL_img = Image.open(imagePath).convert('L') # chuyển đổi ảnh sang thang độ xám
         except Exception as e:
-            print(f"[WARNING] Could not open {imagePath}: {e}")
+            print(f"[WARNING] Không thể mở {imagePath}: {e}")
             continue
-        
-        img_numpy = np.array(PIL_img, 'uint8')
+        # Chuyển đối tượng ảnh PIL thành mảng NumPy, định dạng mà OpenCV có thể hiểu, uint8 là kiểu dữ liệu (số nguyên 8-bit, 0-255) chuẩn cho ảnh xám.
+        img_numpy = np.array(PIL_img, 'uint8')  
 
         # === Lấy ID từ TÊN FILE ===
         try:
@@ -44,15 +42,9 @@ def getImagesAndLabels(path):
             id_str = filename.split('.')[1]        # Lấy phần "38"
             id = int(id_str)
         except Exception as e:
-            print(f"[WARNING] Could not parse id from filename {imagePath}: {e}")
+            print(f"Không thể phân tích cú pháp id từ tệp trên {imagePath}: {e}")
             continue
-        
-        # === BỎ PHẦN detectMultiScale VÀ VÒNG LẶP for faces ===
-        # faces = detector.detectMultiScale(img_numpy)
-        # for (x, y, w, h) in faces:
-        #     faceSamples.append(img_numpy[y:y + h, x:x + w])
-        #     ids.append(id)
-        # =======================================================
+
         
         # === THÊM TRỰC TIẾP ẢNH VÀ ID ===
         faceSamples.append(img_numpy) # Thêm toàn bộ ảnh (đã crop sẵn)
@@ -60,22 +52,22 @@ def getImagesAndLabels(path):
         # ================================
 
     return faceSamples, ids
-
-print ("\n [INFO] Training faces. It will take a few seconds. Wait ...")
+# Huấn luyện lưu mô hình
 faces,ids = getImagesAndLabels(path)
 
 if len(faces) == 0:
-    print("\n [ERROR] No faces found to train. Please check your 'dataset' folder or subfolders.")
+    print("\n [ERROR] Không thấy khuôn mặt nào để huấn luyện.")
 else:
     try:
-        recognizer.train(faces, np.array(ids))
+        # Thuật toán LBPH    
+        recognizer.train(faces, np.array(ids)) # ghi nhớ ảnh và id tương ứng
 
-        # Save the model into trainer/trainer.yml
+        # tạo thư mục trainer nếu chưa tồn tại  
         os.makedirs('trainer', exist_ok=True) # Đảm bảo thư mục trainer tồn tại
-        recognizer.write('trainer/trainer.yml')
+        recognizer.write('trainer/trainer.yml') # lưu kết quả huấn luyện 
 
-        # Print the number of individuals trained and end program
-        print("\n [INFO] {0} individuals trained. Exiting Program".format(len(np.unique(ids))))
+        # Thông báo kết quả
+        print("\n [INFO] huấn luyện thành công {0} cá nhân.".format(len(np.unique(ids))))
     except cv2.error as e:
-         print(f"\n [ERROR] OpenCV error during training: {e}")
-         print("This might happen if dataset contains images without faces or invalid data.")
+         print(f"\n [ERROR] Lỗi trong quá trình đào tạo {e}")
+         print("Điều này có thể diễn ra nếu bạn không có khuôn mặt hoặc dữ liệu không hợp lệ.")

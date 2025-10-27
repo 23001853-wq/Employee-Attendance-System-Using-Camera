@@ -8,7 +8,7 @@ import numpy as np
 from PIL import Image
 import shutil # Thư viện để xóa thư mục
 import time   # Thư viện để tạo độ trễ
-
+import base64 # ui
 # ==============================
 #  CẤU HÌNH KẾT NỐI SQL SERVER
 # ==============================
@@ -44,13 +44,11 @@ TRAINER_DIR = "trainer"
 TRAINER_FILE = os.path.join(TRAINER_DIR, 'trainer.yml')
 FACE_DETECTOR = cv2.CascadeClassifier(os.path.join(os.path.dirname(__file__), 'haarcascade_frontalface_default.xml'))
 
-# === SỬA: Bỏ lưu ảnh debug ===
-# === SỬA: Bỏ lưu ảnh debug ===
 def save_cropped_face(image_bytes, folder_name, user_id, count):
     """
     Xử lý ảnh từ st.camera_input, tìm mặt, crop, chuyển xám và lưu.
     Folder_name bây giờ có dạng 'nhanvien_{ID}'.
-    Đã bỏ lưu ảnh debug khi lỗi.
+    Đã bỏ lưu ảnh khi lỗi.
     """
     try:
         # Đọc ảnh bằng cv2.imdecode
@@ -58,7 +56,7 @@ def save_cropped_face(image_bytes, folder_name, user_id, count):
         img_numpy_cv = cv2.imdecode(np.frombuffer(image_bytes_data, np.uint8), cv2.IMREAD_COLOR)
 
         if img_numpy_cv is None:
-            st.error("Lỗi nghiêm trọng: Không thể giải mã dữ liệu ảnh từ camera.")
+            st.error("Lỗi : Không thể giải mã dữ liệu ảnh từ camera.")
             return None
 
         gray = cv2.cvtColor(img_numpy_cv, cv2.COLOR_BGR2GRAY)
@@ -73,18 +71,7 @@ def save_cropped_face(image_bytes, folder_name, user_id, count):
         )
 
         if len(faces) == 0:
-            st.warning("Không tìm thấy khuôn mặt trong ảnh. Vui lòng thử lại.")
-            # === BỎ PHẦN LƯU DEBUG ===
-            # try:
-            #     debug_dir = "debug_failed_captures"
-            #     os.makedirs(debug_dir, exist_ok=True)
-            #     fail_filename = os.path.join(debug_dir, f"failed_{folder_name}_{user_id}_{count}_{datetime.datetime.now():%Y%m%d_%H%M%S}.jpg")
-            #     debug_img_to_save = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
-            #     cv2.imwrite(fail_filename, debug_img_to_save)
-            #     st.info(f"Ảnh không nhận diện được đã lưu tại: {fail_filename}") # Bỏ dòng này luôn
-            # except Exception as save_err:
-            #     st.error(f"Lỗi khi lưu ảnh debug: {save_err}")
-            # =======================
+            st.warning("Không tìm thấy khuôn mặt trong ảnh. Vui lòng thử lại.")           
             return None # Trả về None nếu thất bại
 
         # Chỉ lấy khuôn mặt đầu tiên
@@ -117,7 +104,6 @@ def save_cropped_face(image_bytes, folder_name, user_id, count):
 def train_model():
     """
     Huấn luyện mô hình từ thư mục 'dataset' và lưu ra file .yml
-    (Không cần thay đổi)
     """
     try:
         recognizer = cv2.face.LBPHFaceRecognizer_create()
@@ -162,13 +148,63 @@ def train_model():
     except Exception as e:
         st.error(f"Lỗi khi huấn luyện: {e}")
 
+
 # ==============================
 #  UI STREAMLIT
 # ==============================
-st.set_page_config(page_title="Hệ thống điểm danh", layout="wide")
-st.title(" HỆ THỐNG QUẢN LÝ ĐIỂM DANH NHÂN VIÊN")
+#  HÀM THÊM ẢNH NỀN 
+# ==============================
+def add_bg_from_local(image_file):
+    if not os.path.exists(image_file):
+        st.error(f"Lỗi: Không tìm thấy file ảnh nền '{image_file}'")
+        return
 
-# Khởi tạo session_state
+    with open(image_file, "rb") as image_file_handle:
+        encoded_string = base64.b64encode(image_file_handle.read()).decode()
+    
+    # CSS để chèn ảnh nền VÀ làm mờ lớp phủ để chữ dễ đọc
+    st.markdown(
+    f"""
+    <style>
+    .stApp {{
+        background-image: url("data:image/png;base64,{encoded_string}");
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+    }}
+    
+    /* Thêm một lớp phủ mờ (overlay) màu đen bán trong suốt */
+    /* Điều này giúp chữ trắng và các thành phần khác NỔI BẬT hơn */
+    .stApp::before {{
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5); /* Màu đen, mờ 50% */
+        z-index: -2; /* Đặt lớp phủ này sau nội dung */
+    }}
+
+    /* Đảm bảo nội dung chính nằm trên lớp phủ */
+    [data-testid="stSidebar"], [data-testid="stHeader"], [data-testid="stToolbar"] {{
+        z-index: 1;
+    }}
+
+    /* Tùy chọn: Làm mờ nhẹ thanh bên để đồng bộ */
+    [data-testid="stSidebar"] > div:first-child {{
+        background-color: rgba(40, 40, 40, 0.8); 
+    }}
+
+    </style>
+    """,
+    unsafe_allow_html=True
+    )
+add_bg_from_local('anh3.jpg')
+st.set_page_config(page_title="Hệ thống điểm danh", layout="wide")
+st.title(" HỆ THỐNG ĐIỂM DANH NHÂN VIÊN")
+# ================================
+# Khởi tạo session_state (Bộ nhớ wed)
 if 'photo_count' not in st.session_state:
     st.session_state.photo_count = 0
 if 'new_emp_id' not in st.session_state:
@@ -177,7 +213,13 @@ if 'run_camera' not in st.session_state:
     st.session_state.run_camera = False
 if 'last_event_time' not in st.session_state:
     st.session_state.last_event_time = {}
+# logo
+if os.path.exists('anh.jpg'): 
+    st.sidebar.image('anh.jpg', width=1000) 
+else:
+    st.sidebar.warning("Không tìm thấy 'logo.png' cho sidebar") 
 
+st.sidebar.markdown("---") 
 menu = st.sidebar.selectbox(
     "Chọn chức năng",
     ["Xem nhân viên", "Thêm nhân viên", "Xem lịch sử điểm danh", "Thống kê tổng hợp", "Điểm danh bằng camera"]
@@ -282,7 +324,7 @@ if menu == "Xem nhân viên":
                 st.info("Nhân viên này chưa có lịch sử điểm danh.")
 
 # -------------------------------
-# ➕ THÊM NHÂN VIÊN (SỬA LẠI THEO ID)
+#  THÊM NHÂN VIÊN (SỬA LẠI THEO ID)
 # -------------------------------
 elif menu == "Thêm nhân viên":
     st.header(" Bước 1: Thêm thông tin nhân viên")
@@ -352,7 +394,7 @@ elif menu == "Thêm nhân viên":
             if saved_file_path:
                 st.session_state.photo_count += 1
                 st.success(f"Đã lưu ảnh {st.session_state.photo_count}/5: {saved_file_path}")
-                time.sleep(1) # Thêm độ trễ
+                time.sleep(1) # Thêm độ trễ(s)
                 st.rerun()
 
     # === BƯỚC 3: HUẤN LUYỆN ===
@@ -412,20 +454,40 @@ elif menu == "Thống kê tổng hợp":
     else:
         df = df_att.merge(df_emp[['Id', 'Name']], left_on='EmpId', right_on='Id', how='left')
 
-        df["WorkHours"] = (
-            pd.to_datetime(df["TimeOut"].astype(str), errors='coerce') - pd.to_datetime(df["TimeIn"].astype(str), errors='coerce')
-        ).dt.total_seconds() / 3600
+        time_diff_seconds = (
+            pd.to_datetime(df["TimeOut"].astype(str), errors='coerce') - 
+            pd.to_datetime(df["TimeIn"].astype(str), errors='coerce')
+        ).dt.total_seconds()
 
-        df = df.fillna(0) # Coi các giờ đang làm là 0
+        df["WorkHours"] = time_diff_seconds / 3600
+        
+        df["WorkMinutes"] = time_diff_seconds / 60
 
-        summary = df.groupby("Name")["WorkHours"].sum().reset_index()
+        df = df.fillna(0) 
+
+        summary = df.groupby("Name").agg(
+            WorkHours=('WorkHours', 'sum'),      
+            WorkMinutes=('WorkMinutes', 'sum') 
+        ).reset_index()
+
+        summary['Tổng Giờ'] = (summary['WorkMinutes'] // 60).astype(int)
+        summary['Tổng Phút'] = (summary['WorkMinutes'] % 60).astype(int)
+        summary['Tổng thời gian'] = summary['Tổng Giờ'].astype(str) + " giờ " + summary['Tổng Phút'].astype(str) + " phút"
+        
         summary = summary.sort_values(by="WorkHours", ascending=False)
-
-        st.bar_chart(summary.set_index("Name"))
-        st.dataframe(summary, use_container_width=True)
+        
+        st.bar_chart(summary.set_index("Name")['WorkHours'])
+        
+        st.dataframe(
+            summary[['Name', 'Tổng thời gian', 'WorkHours']],
+            use_container_width=True,
+            column_config={"WorkHours": "Tổng giờ (dạng số)"} 
+        )
+        
         st.download_button(
             label="⬇️ Tải báo cáo Excel",
-            data=summary.to_csv(index=False).encode("utf-8"),
+            # Xuất file có cả cột "Tổng thời gian"
+            data=summary[['Name', 'Tổng thời gian', 'WorkHours', 'WorkMinutes']].to_csv(index=False).encode("utf-8"),
             file_name=f"ThongKe_{datetime.date.today()}.csv",
             mime="text/csv"
         )
@@ -463,9 +525,9 @@ def load_employee_names_dict():
 def opencv_attendance_streamlit():
     st.header("Điểm danh bằng nhận diện khuôn mặt (OpenCV)")
 
-    COOLDOWN_SECONDS = 15
-    MIN_WORK_SECONDS = 30
-    NGUONG_TIN_CAY = 38 # Ngưỡng tin cậy (thấp hơn là tốt hơn)
+    COOLDOWN_SECONDS = 15 # thời gian check in ca mới 
+    MIN_WORK_SECONDS = 30 # thời gian làm việc tối thiểu để check out
+    NGUONG_TIN_CAY = 43 # Ngưỡng tin cậy (thấp hơn là tốt hơn
 
     col1, col2 = st.columns(2)
     with col1:
@@ -583,7 +645,7 @@ def opencv_attendance_streamlit():
                 else:
                     # Không đủ tin cậy hoặc id không hợp lệ
                     cv2.putText(img_display, "Unknown", (x + 5, y - 5), font, 1, (255, 255, 255), 2)
-                    cv2.rectangle(img_display, (x, y), (x + w, y + h), (0, 0, 255), 2) # Đỏ
+                    cv2.rectangle(img_display, (x, y), (x + w, y + h), (255, 0, 0), 2) 
 
             # Hiển thị ảnh lên web
             FRAME_WINDOW.image(img_display)

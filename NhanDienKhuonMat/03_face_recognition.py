@@ -2,21 +2,16 @@ import cv2
 import numpy as np
 import os
 import datetime
-import pyodbc
+import pyodbc 
 
-# ====== CẤU HÌNH KẾT NỐI SQL SERVER ======
-server = '.'  # hoặc '.\\SQLEXPRESS'
+# ======  KẾT NỐI SQL SERVER ======
+server = '.'  
 database = 'NhanDienKhuonMat'
 driver = '{ODBC Driver 17 for SQL Server}'
-
 def get_connection():
     return pyodbc.connect(
         f'DRIVER={driver};SERVER={server};DATABASE={database};Trusted_Connection=yes;'
     )
-
-# ====== CÁC HÀM GHI (Không dùng nữa, logic đưa vào vòng lặp) ======
-# Bỏ 2 hàm record_attendance và record_checkout
-# vì logic kiểm tra DB phức tạp hơn, cần làm trực tiếp
 
 # ====== NHẬN DIỆN ======
 recognizer = cv2.face.LBPHFaceRecognizer_create()
@@ -54,11 +49,11 @@ MIN_WORK_SECONDS = 30 # (giây) Thời gian tối thiểu để check-out
 last_event_time = {}   # {emp_id: datetime_object}
 
 # Giữ lại tính năng tự động check-out lúc 17h
-CHECKOUT_TIME = datetime.time(23, 0, 0)
+CHECKOUT_TIME = datetime.time(17, 0, 0)
 # =======================================================
 
 
-print("\n📷 Hệ thống nhận diện đang hoạt động...")
+print("\n Hệ thống nhận diện đang hoạt động...")
 print(f"Hệ thống sẽ tự động check-out và tắt lúc {CHECKOUT_TIME}.")
 
 while True:
@@ -94,8 +89,8 @@ while True:
     # === Nhận diện khuôn mặt ===
     for (x, y, w, h) in faces:
         id, confidence = recognizer.predict(gray[y:y + h, x:x + w])
-        # print(f"ID: {id}, Confidence: {confidence:.2f}")
-        if confidence < 38:
+        # Độ tin cậy
+        if confidence < 43:
             name = names[id] if id < len(names) else "Unknown"
             cv2.putText(img, f"{name}", (x + 5, y - 5), font, 1, (255, 255, 255), 2)
             cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
@@ -124,7 +119,7 @@ while True:
                     # TRƯỜNG HỢP 1: CHƯA CÓ BẢN GHI NÀO HÔM NAY -> CHECK-IN
                     cursor.execute("INSERT INTO Attendance (EmpId, Date, TimeIn) VALUES (?, ?, ?)", id, today, time_now_str)
                     conn.commit()
-                    print(f"✅ CHECK-IN: {name} (ID {id}) lúc {time_now_str}")
+                    print(f" CHECK-IN: {name} (ID {id}) lúc {time_now_str}")
                     last_event_time[id] = current_datetime # Cập nhật cooldown
 
                 elif rec.TimeOut is None or str(rec.TimeOut).strip() == "":
@@ -140,7 +135,7 @@ while True:
                         # Đủ thời gian làm việc -> CHECK-OUT
                         cursor.execute("UPDATE Attendance SET TimeOut = ? WHERE Id = ?", time_now_str, rec.Id)
                         conn.commit()
-                        print(f"✅ CHECK-OUT: {name} (ID {id}) lúc {time_now_str}")
+                        print(f" CHECK-OUT: {name} (ID {id}) lúc {time_now_str}")
                         last_event_time[id] = current_datetime # Cập nhật cooldown
                     else:
                         # Chưa đủ thời gian, chỉ là vẫn đứng trước camera
@@ -151,7 +146,7 @@ while True:
                     # TRƯỜNG HỢP 3: ĐÃ CÓ CHECK-IN VÀ CHECK-OUT (ĐÃ HOÀN THÀNH CA) -> CHECK-IN (CA MỚI)
                     cursor.execute("INSERT INTO Attendance (EmpId, Date, TimeIn) VALUES (?, ?, ?)", id, today, time_now_str)
                     conn.commit()
-                    print(f"✅ CHECK-IN (Ca mới): {name} (ID {id}) lúc {time_now_str}")
+                    print(f" CHECK-IN (Ca mới): {name} (ID {id}) lúc {time_now_str}")
                     last_event_time[id] = current_datetime # Cập nhật cooldown
                 
                 conn.close()
@@ -160,7 +155,7 @@ while True:
             # =======================================================
 
         else:
-            # Unknown
+            # Xử lý người lạ
             cv2.putText(img, "Unknown", (x + 5, y - 5), font, 1, (255, 255, 255), 2)
             cv2.rectangle(img, (x, y), (x + w, y + h), (0, 0, 255), 2)
 
@@ -170,6 +165,6 @@ while True:
         break
 
 # ====== DỌN DẸP ======
-print("\n[INFO] Đóng camera và kết thúc chương trình.")
+print(" Đóng camera và kết thúc chương trình.")
 cam.release()
 cv2.destroyAllWindows()

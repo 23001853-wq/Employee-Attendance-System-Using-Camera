@@ -151,56 +151,6 @@ def train_model():
 
 # ==============================
 #  UI STREAMLIT
-# ==============================
-#  HÀM THÊM ẢNH NỀN 
-# ==============================
-def add_bg_from_local(image_file):
-    if not os.path.exists(image_file):
-        st.error(f"Lỗi: Không tìm thấy file ảnh nền '{image_file}'")
-        return
-
-    with open(image_file, "rb") as image_file_handle:
-        encoded_string = base64.b64encode(image_file_handle.read()).decode()
-    
-    # CSS để chèn ảnh nền VÀ làm mờ lớp phủ để chữ dễ đọc
-    st.markdown(
-    f"""
-    <style>
-    .stApp {{
-        background-image: url("data:image/png;base64,{encoded_string}");
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-    }}
-    
-    /* Thêm một lớp phủ mờ (overlay) màu đen bán trong suốt */
-    /* Điều này giúp chữ trắng và các thành phần khác NỔI BẬT hơn */
-    .stApp::before {{
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(0, 0, 0, 0.5); /* Màu đen, mờ 50% */
-        z-index: -2; /* Đặt lớp phủ này sau nội dung */
-    }}
-
-    /* Đảm bảo nội dung chính nằm trên lớp phủ */
-    [data-testid="stSidebar"], [data-testid="stHeader"], [data-testid="stToolbar"] {{
-        z-index: 1;
-    }}
-
-    /* Tùy chọn: Làm mờ nhẹ thanh bên để đồng bộ */
-    [data-testid="stSidebar"] > div:first-child {{
-        background-color: rgba(40, 40, 40, 0.8); 
-    }}
-
-    </style>
-    """,
-    unsafe_allow_html=True
-    )
-add_bg_from_local('anh3.jpg')
 st.set_page_config(page_title="Hệ thống điểm danh", layout="wide")
 st.title(" HỆ THỐNG ĐIỂM DANH NHÂN VIÊN")
 # ================================
@@ -213,13 +163,7 @@ if 'run_camera' not in st.session_state:
     st.session_state.run_camera = False
 if 'last_event_time' not in st.session_state:
     st.session_state.last_event_time = {}
-# logo
-if os.path.exists('anh.jpg'): 
-    st.sidebar.image('anh.jpg', width=1000) 
-else:
-    st.sidebar.warning("Không tìm thấy 'logo.png' cho sidebar") 
 
-st.sidebar.markdown("---") 
 menu = st.sidebar.selectbox(
     "Chọn chức năng",
     ["Xem nhân viên", "Thêm nhân viên", "Xem lịch sử điểm danh", "Thống kê tổng hợp", "Điểm danh bằng camera"]

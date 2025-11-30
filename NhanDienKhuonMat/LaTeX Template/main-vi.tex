@@ -6,6 +6,7 @@
 \usepackage{hyperref}
 \usepackage[utf8]{vietnam}
 \usepackage{amsmath}
+\usepackage{float}
 
 % Geometry setup
 \geometry{left=2cm,right=2cm,top=2cm,bottom=2cm}
@@ -56,9 +57,9 @@
         \textbf{Trường:} & VNU-HUS (Đại học Quốc gia Hà Nội -- Trường Đại học Khoa học Tự nhiên) \\
         \textbf{Tên dự án:} & {[Nhận diện khuôn mặt]} \\
         \textbf{Ngày nộp:} & 30/11/2025 \\
-        \textbf{Báo cáo PDF:} & \href{[PDF Link]}{Liên kết tới báo cáo PDF trong kho GitHub} \\
-        \textbf{Slide thuyết trình:} & \href{[Slides Link]}{Liên kết tới slide thuyết trình trong kho GitHub} \\
-        \textbf{Kho GitHub:} & \url{[GitHub Repository URL]}
+        \textbf{Báo cáo PDF:} & \href{https://github.com/23001853-wq/Employee-Attendance-System-Using-Camera/blob/main/report.pdf}{Liên kết tới báo cáo PDF trong kho GitHub} \\
+        \textbf{Slide thuyết trình:} & \href{https://github.com/23001853-wq/Employee-Attendance-System-Using-Camera/blob/main/slides.pdf}{Liên kết tới slide thuyết trình trong kho GitHub} \\
+        \textbf{Kho GitHub:} & \url{https://github.com/23001853-wq/Employee-Attendance-System-Using-Camera.git}
     \end{tabular}
     \\[2em]
     {\Large \textbf{Thành viên nhóm}}\\[1em]
@@ -71,13 +72,8 @@
      
     \end{tabular}
 \end{center}
-
-% Gom mục lục, danh sách hình, danh sách bảng vào một chỗ, chỉ clearpage sau cùng để tránh sinh trang trắng thừa
-	ableofcontents
-\listoffigures
-\listoftables
+\tableofcontents
 \clearpage
-
 % Chương 1: Giới thiệu
 \chapter{Giới thiệu}
 
@@ -95,7 +91,7 @@ Kết quả thực nghiệm cho thấy SVM (RBF Kernel) kết hợp chuẩn hóa
 Hệ thống cần giải quyết các thách thức sau:
 \begin{enumerate}
     \item \textbf{Đảm bảo độ chính xác cao với dữ liệu nhỏ:} Số lượng ảnh mỗi nhân viên ít, cần thuật toán học sâu nhẹ kết hợp SVM/KNN/RF để đạt hiệu quả mà không quá khớp.
-    \item \textbf{Xử lý đa dạng khuôn mặt và điều kiện ánh sáng:} Haar Cascade giúp phát hiện và cắt khuôn mặt, chuẩn hóa ảnh trước khi trích xuất vector.
+    \item \textbf{Xử lý đa dạng khuôn mặt và điều kiện ánh sáng:} Haar Cascade phát hiện khuôn mặt trên ảnh xám để tăng độ chính xác, sau đó cắt và lấy lại vùng mặt từ ảnh gốc màu trước khi trích xuất vector đặc trưng.
     \item \textbf{Chuẩn hóa L2 và tối ưu tốc độ nhận diện:} Vector 1280 chiều từ MobileNetV2 được chuẩn hóa L2 và đưa vào SVM cho phép nhận diện nhanh, đủ cho ứng dụng real-time.
     \item \textbf{So sánh nhiều thuật toán:} Học có giám sát và không giám sát để chọn mô hình tối ưu về độ chính xác, tốc độ và khả năng mở rộng.
     \item \textbf{Quản lý check-in/check-out và cơ sở dữ liệu:} Sau khi nhận diện, hệ thống ghi nhận thời gian vào/ra nhân viên vào SQL Server, hỗ trợ tra cứu lịch sử và báo cáo.
@@ -165,15 +161,15 @@ Hệ thống triển khai với các thành phần chính:
 \begin{itemize}
     \item \textbf{Thu thập và lưu trữ dữ liệu:} Script Python kết hợp OpenCV và Haar Cascade, lưu ảnh khuôn mặt từng nhân viên.
     
-    \item \textbf{Tiền xử lý và tăng cường:} Sử dụng \texttt{ImageDataGenerator} của Keras để sinh thêm dữ liệu và chuẩn hóa ảnh.
+    \item \textbf{Tiền xử lý và tăng cường:} Sử dụng \texttt{ImageDataGenerator} của Keras để sinh thêm dữ liệu và chuẩn hóa ảnh nếu không đủ 50 ảnh.
     
     \item \textbf{Trích xuất đặc trưng:} MobileNetV2 pretrained, vector 1280 chiều, chuẩn hóa L2.
     
     \item \textbf{Huấn luyện mô hình:} Sử dụng scikit-learn cho SVM, KNN, Random Forest. So sánh với Cosine và L2 template matching.
     
-    \item \textbf{Nhận diện thực tế:} Ứng dụng Streamlit làm giao diện web, nhận diện real-time từ webcam, hiển thị tên và ID nhân viên, đồng thời ghi check-in/check-out vào cơ sở dữ liệu SQL Server.
+    \item \textbf{Nhận diện thực tế:} Ứng dụng Streamlit làm giao diện web, nhận diện real-time từ webcam, hiển thị tên theo ID nhân viên, đồng thời ghi check-in/check-out vào cơ sở dữ liệu SQL Server.
     
-    \item \textbf{Lưu trữ kết quả:} Model và label map lưu dưới dạng file \texttt{.pkl}; thông tin nhân viên và lịch sử điểm danh lưu SQL Server.
+    \item \textbf{Lưu trữ kết quả:} Model và label map lưu dưới dạng file \texttt{.pkl} trong thư mục trainer; thông tin nhân viên và lịch sử điểm danh lưu SQL Server.
     
     \item \textbf{Thư viện và công nghệ:} TensorFlow/Keras, scikit-learn, OpenCV, pandas, streamlit, pyodbc.
 \end{itemize}
@@ -205,20 +201,22 @@ Bảng dưới đây tổng hợp kết quả thực nghiệm trên tập test (
 \end{figure}
 
 \begin{table}[h!]
-\centering
-\begin{tabular}{lccc}
-\hline
-	extbf{Thuật toán} & \textbf{Độ chính xác (\%)} & \textbf{Thời gian xử lý (s)} & \textbf{Ghi chú} \\
-\hline
-SVM (RBF Kernel)     & 100      & 0.07   & Tốt nhất, ổn định \\
-KNN (k=5)            & 100      & 0.001  & Dữ liệu ít hiệu quả, kém ổn định khi dữ liệu tăng \\
-Random Forest        & 98.3     & 0.27   & Kháng nhiễu tốt, nhưng độ chính xác thấp hơn SVM \\
-Cosine Similarity    & 98.3     & 0.001  & Học không giám sát, dễ áp dụng với dữ liệu ít \\
-L2 Distance          & 98.3     & 0.001  & Học không giám sát, hiệu quả gần giống Cosine \\
-\hline
-\end{tabular}
-\caption{Bảng so sánh các thuật toán nhận diện khuôn mặt}
-\label{tab:model-compare}
+    \centering
+    % Nếu bảng quá rộng, dùng \small hoặc resizebox
+    \small
+    \begin{tabular}{lccc}
+        \hline
+        	extbf{Thuật toán} & \textbf{Độ chính xác (\%)} & \textbf{Thời gian xử lý (s)} & \textbf{Ghi chú} \\
+        \hline
+        SVM (RBF Kernel)     & 100      & 0.07   & Tốt nhất, ổn định \\
+        KNN (k=5)            & 100      & 0.000  & Dữ liệu ít hiệu quả, kém ổn định khi dữ liệu tăng \\
+        Random Forest        & 98.3     & 0.27   & Kháng nhiễu tốt, nhưng độ chính xác thấp hơn SVM \\
+        Cosine Similarity    & 95     & 0.001  & Học không giám sát, dễ áp dụng với dữ liệu ít \\
+        L2 Distance          & 95     & 0.001  & Học không giám sát, hiệu quả gần giống Cosine \\
+        \hline
+    \end{tabular}
+    \caption{So sánh các thuật toán nhận diện khuôn mặt}
+    \label{tab:model-compare}
 \end{table}
 
 \section{Phân tích kết quả}
@@ -235,7 +233,7 @@ L2 Distance          & 98.3     & 0.001  & Học không giám sát, hiệu quả
 \end{itemize}
 \section{Kết quả nhận diện thực tế với SVM}
 
-Để đánh giá khả năng hoạt động của hệ thống trong bối cảnh thực tế, các ảnh trong \textbf{File 03} (tập kiểm thử độc lập, không tham gia huấn luyện) được đưa vào mô hình phân loại \textbf{SVM (RBF Kernel)}. 
+Để đánh giá khả năng hoạt động của hệ thống trong bối cảnh thực tế, \textbf{File 03} (tập kiểm thử độc lập, không tham gia huấn luyện) được đưa vào mô hình phân loại \textbf{SVM (RBF Kernel)}. 
 
 Trong giai đoạn nhận diện, hệ thống thực hiện quy trình sau:
 
@@ -243,9 +241,9 @@ Trong giai đoạn nhận diện, hệ thống thực hiện quy trình sau:
     \item \textbf{Phát hiện khuôn mặt} bằng Haar Cascade và cắt vùng ROI.
     \item \textbf{Trích xuất đặc trưng}:  
     Sử dụng MobileNetV2 (pretrained ImageNet) để lấy vector 1280 chiều và chuẩn hoá L2.
-    \item \textbf{Dự đoán bằng SVM}:  
+    \item \textbf{Phân loại bằng SVM}:  
     \begin{itemize}
-        \item Lấy \textbf{ID dự đoán} từ mô hình.
+        \item Lấy \textbf{ID các lớp } từ mô hình.
         \item Lấy \textbf{độ tin cậy} bằng hàm \texttt{predict\_proba}.
     \end{itemize}
     \item \textbf{Áp dụng ngưỡng tin cậy 0.55}:  
@@ -310,6 +308,34 @@ Từ các kết quả thực nghiệm trên:
     \item Toàn bộ pipeline từ nhận diện đến ghi nhận công làm việc vận hành ổn định, chính xác và đủ nhanh cho triển khai thật.
 \end{itemize}
 
+
+\section{Hệ thống Web ứng dụng điểm danh}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{wed.png}
+    \caption{Giao diện Web ứng dụng điểm danh}
+    \label{fig:webapp}
+\end{figure}
+
+Hệ thống Web điểm danh được xây dựng bằng Streamlit với các đặc điểm chính như sau:
+
+\begin{itemize}
+    \item \textbf{Giao diện trực quan}: Người dùng có thể thêm nhân viên tải ảnh hoặc sử dụng trực tiếp webcam trên trình duyệt để thực hiện nhận diện khuôn mặt.
+    
+    \item \textbf{Xử lý ảnh trên server}: Ảnh được gửi đến server Python, nơi tiến hành tiền xử lý và trích xuất đặc trưng khuôn mặt bằng mô hình MobileNetV2.
+    
+    \item \textbf{Phân loại bằng SVM}: Sau khi trích xuất embedding, hệ thống sử dụng mô hình SVM đã huấn luyện để dự đoán danh tính.
+    
+    \item \textbf{Hiển thị kết quả tức thì}: Giao diện web trả về danh tính và thời gian điểm danh ngay lập tức sau khi mô hình xử lý.
+    
+    \item \textbf{Tích hợp cơ sở dữ liệu}: Dữ liệu điểm danh và thông tin nhân viên được lưu trữ, truy vấn và quản lý thông qua SQL Server.
+    
+    \item \textbf{Ứng dụng một khối (All-in-one)}: Toàn bộ pipeline từ xử lý ảnh, nhận diện đến lưu trữ đều nằm trong một ứng dụng Streamlit duy nhất, không tách Front-end/Back-end truyền thống, giúp quản lý nhân sự thuận tiện, nhất quán và dễ vận hành.
+\end{itemize}
+
+
+
 % Chương 4: Kết luận
 \chapter{Kết luận}
 
@@ -332,11 +358,11 @@ Dựa trên kết quả đạt được, hệ thống hoàn toàn đáp ứng y�
 
 \bibitem{opencv} OpenCV Development Team, \emph{OpenCV: Open Source Computer Vision Library}, \url{https://opencv.org/}, truy cập 2025.
 
-\bibitem{viola-jones} P. Viola and M. Jones, ``Rapid Object Detection using a Boosted Cascade of Simple Features,'' \emph{Proceedings of CVPR}, 2001, trang 511--518.
+\bibitem{viola-jones} P. Viola and M. Jones, ``Rapid Object Detection using a Boosted Cascade of Simple Features,'' \emph{Proceedings of CVPR}, 2001, \url{https://www.cs.cmu.edu/~efros/courses/LBMV07/Papers/viola-cvpr-01.pdf}.
 
-\bibitem{mobilenetv2} M. Sandler, A. Howard, M. Zhu, A. Zhmoginov, L.-C. Chen, ``MobileNetV2: Inverted Residuals and Linear Bottlenecks,'' \emph{Proceedings of CVPR}, 2018, trang 4510--4520.
+\bibitem{mobilenetv2} M. Sandler, A. Howard, M. Zhu, A. Zhmoginov, L.-C. Chen, ``MobileNetV2: Inverted Residuals and Linear Bottlenecks,'' \emph{Proceedings of CVPR}, 2018, \url{https://openaccess.thecvf.com/content_cvpr_2018/papers/Sandler_MobileNetV2_Inverted_Residuals_CVPR_2018_paper.pdf}.
 
-\bibitem{sklearn} F. Pedregosa et al., ``Scikit-learn: Machine Learning in Python,'' \emph{Journal of Machine Learning Research}, vol. 12, pp. 2825–2830, 2011.
+\bibitem{sklearn}F. Pedregosa et al., “Scikit-learn: Machine Learning in Python,” Journal of Machine Learning Research, vol. 12, pp. 2825–2830, 2011.
 
 \bibitem{keras} F. Chollet, \emph{Keras}, \url{https://keras.io/}, truy cập 2025.
 
@@ -347,9 +373,72 @@ Dựa trên kết quả đạt được, hệ thống hoàn toàn đáp ứng y�
 \end{thebibliography}
 
 
-% Phụ lục (Tùy chọn)
+
+% Phụ lục
 \appendix
 \chapter{Phụ lục}
-% [Thêm kết quả bổ sung, đoạn mã hoặc hướng dẫn sử dụng tại đây.]
+
+\section{Hướng dẫn sử dụng các script chính}
+
+\subsection*{01. Thu thập dữ liệu khuôn mặt}
+\begin{enumerate}
+    \item Chạy script \texttt{01\_face\_dataset.py}.
+    \item Đảm bảo webcam hoạt động, nhập ID và tên nhân viên khi được yêu cầu.
+    \item Hệ thống lưu ảnh khuôn mặt vào thư mục \texttt{dataset/} theo từng nhân viên.
+\end{enumerate}
+
+\subsection*{02. Huấn luyện mô hình nhận diện}
+\begin{enumerate}
+    \item Chạy script \texttt{02\_face\_training.py}.
+    \item Script tự động trích xuất đặc trưng bằng MobileNetV2, chuẩn hóa L2 và huấn luyện các mô hình: SVM, KNN, Random Forest, Cosine, L2.
+    \item Kết quả huấn luyện và mô hình được lưu trong thư mục \texttt{trainer/} với model tốt nhất.
+\end{enumerate}
+
+\subsection*{03. Nhận diện và điểm danh thực tế}
+\begin{enumerate}
+    \item Chạy script \texttt{03\_face\_recognition.py}.
+    \item Camera mở và phát hiện khuôn mặt theo thời gian thực.
+    \item Hệ thống hiển thị: tên, ID nhân viên, thời gian check-in/check-out.
+    \item Nếu độ tin cậy < 0.55 → gán nhãn \textit{Unknown} và không ghi điểm danh.
+
+\end{enumerate}
+\subsection*{04. Thao tác thông qua web với Streamlit}
+\begin{enumerate}
+    \item Chạy script \texttt{Attendance.py}.
+    \item Hệ thống hiển thị giao diện web, thực hiện nhận diện khuôn mặt và thao tác với dữ liệu nhân viên thông qua SQL Server.
+\end{enumerate}
+
+
+\section{Mã Python trích xuất đặc trưng}
+Ví dụ sử dụng MobileNetV2 để lấy vector 1280 chiều:
+\begin{verbatim}
+from keras.applications import MobileNetV2
+from keras.preprocessing import image
+from keras.applications.mobilenet_v2 import preprocess_input
+import numpy as np
+
+model = MobileNetV2(weights='imagenet', include_top=False, pooling='avg')
+
+# Tiền xử lý ảnh
+img = image.load_img('face.jpg', target_size=(224,224))
+x = image.img_to_array(img)
+x = np.expand_dims(x, axis=0)
+x = preprocess_input(x)
+
+# Trích xuất vector đặc trưng
+features = model.predict(x)
+\end{verbatim}
+
+\section{Kết quả thử nghiệm chi tiết}
+Bảng minh họa chi tiết độ chính xác từng thuật toán trên từng nhân viên (tham khảo chương 3).
+
+\section{Ghi chú quan trọng}
+\begin{itemize}
+    \item Ngưỡng tin cậy 0.55 được chọn dựa trên thực nghiệm, vừa nhận diện chính xác nhân viên, vừa phát hiện người lạ.
+    \item Check-in/check-out được ghi chính xác, không trùng lặp, lưu trong SQL Server.
+    \item Các mô hình khác (KNN, Random Forest, Cosine, L2) được giữ để tham khảo nhưng SVM (RBF Kernel) là mô hình tối ưu.
+    \item Có thể mở rộng hoặc tối ưu tốc độ bằng TensorRT/ONNX Runtime cho real-time.
+\end{itemize}
 
 \end{document}
+

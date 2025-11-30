@@ -1,7 +1,17 @@
+
+# 🤖 Báo cáo Bài tập nhóm Môn Trí tuệ Nhân tạo
+**📋 Thông tin:**
+
+* **📚 Môn học:** MAT3508 - Nhập môn Trí tuệ Nhân tạo  
+* **📅 Học kỳ:** Học kỳ 1 - 2025-2026  
+* **🏫 Trường:** VNU-HUS (Đại học Quốc gia Hà Nội - Trường Đại học Khoa học Tự nhiên)  
+* **📝 Tiêu đề:** Hệ thống điểm danh nhân viên sử dụng nhận diện khuôn mặt  
+* **📅 Ngày nộp:** 30/11/2025  
+* **📄 Báo cáo PDF:** 📄 [report.pdf](report.pdf)  
+* **🖥️ Slide thuyết trình:** 🖥️ [slides.pdf](slides.pdf)  
+* **📂 Kho lưu trữ:** 📁 Bao gồm mã nguồn, dữ liệu mẫu và tài liệu hướng dẫn
 ### 🏷️ Tên nhóm
 Nhóm 28
-### 📝 Tên dự án
-Hệ thống điểm danh nhân viên bằng camera
 ### 👥 Thành viên nhóm
 | 👤 Họ và tên 🧑‍🎓  | 🆔 Mã sinh viên 🧾 | 🐙 Tên GitHub 🔗     |
 |------------------|---------------------|---------------------|
@@ -12,6 +22,61 @@ Hệ thống điểm danh nhân viên bằng camera
 Dự án xây dựng hệ thống điểm danh tự động sử dụng camera và thuật toán nhận diện khuôn mặt (OpenCV LBPH), tích hợp với cơ sở dữ liệu SQL Server và giao diện quản lý bằng Streamlit.
 
 ---
+## 📁 Cấu trúc thư mục repo
+
+```
+├── data/              # Dữ liệu mẫu
+├── NhanDienKhuonMat/  # Mã nguồn chính (script, model, dataset)
+├── report.pdf         # Báo cáo PDF
+├── slides.pdf         # Slide trình bày
+├── requirements.txt   # Thư viện Python cần thiết
+├── README.md          # Hướng dẫn sử dụng
+```
+
+## 🚀 Quick Start
+
+Tóm tắt các bước cài đặt và chạy thử nhanh:
+
+```bash
+git clone <repo-url>
+cd <repo>
+python -m venv .venv
+.\.venv\Scripts\activate  # Windows
+pip install -r requirements.txt
+streamlit run Attendance.py
+
+# Nếu muốn thao tác thủ công từng bước (tạo dữ liệu, huấn luyện, nhận diện):
+
+```bash
+# 1. Tạo dữ liệu khuôn mặt cho từng nhân viên (chạy cho từng người)
+python NhanDienKhuonMat/01_face_dataset.py
+
+# 2. Huấn luyện mô hình nhận diện
+**Lưu ý:** File `02_face_training` là notebook Jupyter (`.ipynb`).
+
+Bạn có thể mở và chạy bằng Jupyter Notebook hoặc VSCode:
+```bash
+jupyter notebook NhanDienKhuonMat/02_face_training.ipynb
+# hoặc mở trực tiếp bằng VSCode và chạy từng cell
+```
+
+```bash
+jupyter nbconvert --to script NhanDienKhuonMat/02_face_training.ipynb
+python NhanDienKhuonMat/02_face_training.py
+```
+
+# 3. Nhận diện và điểm danh (chạy camera)
+python NhanDienKhuonMat/03_face_recognition.py
+
+# 4. Nếu thiếu ảnh, có thể tăng cường dữ liệu bằng tool:
+python NhanDienKhuonMat/tool_augment_data.py
+```
+
+> **Lưu ý:**
+> - Nếu dùng giao diện web thì các chức năng thu thập ảnh và huấn luyện đã tích hợp sẵn, không cần chạy 01/02 riêng.
+
+
+
 
 ## ✨ Tính năng chính
 
@@ -63,50 +128,39 @@ Dự án xây dựng hệ thống điểm danh tự động sử dụng camera v
     );
     ```
 
-### 3. Cài đặt thư viện Python
 
-1.  Tạo môi trường ảo (khuyến nghị):
-    ```bash
-    python -m venv .venv
-    source .venv/bin/activate # Linux/macOS
-    .\.venv\Scripts\activate # Windows
-    ```
-2.  Cài đặt các thư viện cần thiết từ file `requirements.txt`:
-    ```bash
-    pip install -r requirements.txt
 
 ## ▶️ Hướng dẫn sử dụng
 
-### 1. Chạy ứng dụng Web quản lý (`Attendace.py`)
+
+### 1. Chạy ứng dụng Web quản lý (`Attendance.py`)
 
 Mở terminal trong thư mục dự án và chạy lệnh:
 ```bash
-streamlit run Attendace.py
+streamlit run Attendance.py
+```
 Trình duyệt sẽ tự động mở trang web quản lý. Tại đây bạn có thể:
 
-Thêm nhân viên: Nhập thông tin, chụp 5 ảnh, và huấn luyện mô hình.
+- Thêm nhân viên: Nhập thông tin, chụp 5 ảnh, và huấn luyện mô hình.
+- Xem/Sửa/Xóa nhân viên: Quản lý danh sách nhân viên.
+- Xem lịch sử & Thống kê: Theo dõi dữ liệu điểm danh.
+- Điểm danh (Demo): Bật/tắt camera để thử nghiệm nhận diện trên web.
 
-Xem/Sửa/Xóa nhân viên: Quản lý danh sách nhân viên.
+> **Ghi chú:** Chức năng thu thập ảnh (trước đây là 01_face_dataset.py) và huấn luyện mô hình (trước đây là 02_face_training.py) đã được tích hợp vào ứng dụng web trong menu "Thêm nhân viên" và không cần chạy riêng nữa.
 
-Xem lịch sử & Thống kê: Theo dõi dữ liệu điểm danh.
 
-Điểm danh (Demo): Bật/tắt camera để thử nghiệm nhận diện trên web.
-
-(Ghi chú: Chức năng thu thập ảnh (trước đây là 01_face_dataset.py) và
- huấn luyện mô hình (trước đây là 02_face_training.py) đã được tích hợp vào ứng dụng web 
- trong menu "Thêm nhân viên" và không cần chạy riêng nữa.)
-
-2. Chạy Script điểm danh liên tục (03_face_recognition.py)
+### 2. Chạy Script điểm danh liên tục (`03_face_recognition.py`)
 Script này dùng cho máy chấm công thực tế, chạy camera liên tục.
 
-Bash
-
+```bash
 python 03_face_recognition.py
+```
 Camera sẽ mở và tự động nhận diện, ghi log check-in/check-out vào terminal và CSDL.
 
 Nhấn ESC trong cửa sổ camera để dừng script.
 
 Script sẽ tự động check-out cho những ai chưa check-out và dừng khi đến giờ CHECKOUT_TIME (mặc định là 23:00).
+---
 
 🛠️ Công nghệ sử dụng
 Ngôn ngữ: Python

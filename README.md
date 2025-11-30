@@ -159,7 +159,7 @@ Camera sẽ mở và tự động nhận diện, ghi log check-in/check-out vào
 
 Nhấn ESC trong cửa sổ camera để dừng script.
 
-Script sẽ tự động check-out cho những ai chưa check-out và dừng khi đến giờ CHECKOUT_TIME (mặc định là 23:00).
+Script sẽ tự động check-out cho những ai chưa check-out và dừng khi đến giờ CHECKOUT_TIME .
 ---
 
 🛠️ Công nghệ sử dụng

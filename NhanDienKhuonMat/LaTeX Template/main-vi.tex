@@ -12,7 +12,7 @@
 \geometry{left=2cm,right=2cm,top=2cm,bottom=2cm}
 
 % Titlepage information
-\newcommand{\reporttitle}{Employee-Attendance-System-Using-Camera}
+\newcommand{\reporttitle}{Hệ thống điểm danh nhân viên sử dụng nhận diện khuôn mặt}
 \newcommand{\reportauthors}{%
     Nguyễn Hữu Duy
 }
@@ -221,9 +221,9 @@ Bảng dưới đây tổng hợp kết quả thực nghiệm trên tập test (
 
 \section{Phân tích kết quả}
 \begin{itemize}
-    \item \textbf{SVM (RBF Kernel):} Đạt 100\% độ chính xác nhờ khả năng phân tách tốt, tổng quát hóa mạnh và kết hợp chuẩn hóa L2. Thời gian xử lý chấp nhận được cho real-time.
+    \item \textbf{SVM (RBF Kernel):} Đạt 100\% độ chính xác nhờ khả năng phân tách tốt, tổng quát hóa mạnh và kết hợp chuẩn hóa L2, tốt với các điều kiện môi trường khác nhau, độ chính xác trung bình cao. Thời gian xử lý chấp nhận được cho real-time.
     
-    \item \textbf{KNN:} Với k=3 hoặc k=5, độ chính xác đạt 100\% trên tập test nhỏ, nhưng khi k tăng hoặc dữ liệu nhiều, hiệu quả giảm. Dễ bị nhạy cảm với nhiễu.
+    \item \textbf{KNN:} Độ chính xác 100\% trên tập test không đảm bảo hiệu suất thực tế. Kết quả trung bình cho thấy KNN chỉ đạt ~91\% với độ lệch chuẩn ±8.57\%. Điều này chứng minh KNN học vẹt không ổn định và phù hợp hơn cho môi trường với dữ liệu đa dạng..
     
     \item \textbf{Random Forest:} Kháng nhiễu tốt nhưng chưa tối ưu với vector đặc trưng 1280 chiều, dẫn đến độ chính xác thấp hơn SVM.
     

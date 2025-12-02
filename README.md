@@ -19,7 +19,7 @@ Nhóm 28
 
 # Hệ thống Điểm danh bằng Nhận diện Khuôn mặt
 
-Dự án xây dựng hệ thống điểm danh tự động sử dụng camera và thuật toán nhận diện khuôn mặt (OpenCV LBPH), tích hợp với cơ sở dữ liệu SQL Server và giao diện quản lý bằng Streamlit.
+Dự án xây dựng hệ thống điểm danh tự động sử dụng camera và thuật toán nhận diện khuôn mặt (OpenCV, MobileNetV2, SVM), tích hợp với cơ sở dữ liệu SQL Server và giao diện quản lý bằng Streamlit.
 
 ---
 ## 📁 Cấu trúc thư mục repo
@@ -165,7 +165,7 @@ Script sẽ tự động check-out cho những ai chưa check-out và dừng khi
 🛠️ Công nghệ sử dụng
 Ngôn ngữ: Python
 
-Nhận diện khuôn mặt: OpenCV (Haar Cascade, LBPH)
+Nhận diện khuôn mặt: OpenCV (Haar Cascade, MobileNetV2,SVM)
 
 Giao diện Web: Streamlit
 

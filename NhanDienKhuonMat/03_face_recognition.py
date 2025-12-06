@@ -71,7 +71,7 @@ def main():
     scaler = Normalizer(norm='l2')
     
     # Mức độ an toàn
-    CONFIDENCE_THRESHOLD = 0.55
+    CONFIDENCE_THRESHOLD = 0.5
     
     # Biến quản lý điểm danh
     COOLDOWN_SECONDS = 15; MIN_WORK_SECONDS = 30; last_event_time = {}

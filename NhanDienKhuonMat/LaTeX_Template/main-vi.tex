@@ -6,6 +6,7 @@
 \usepackage{hyperref}
 \usepackage[utf8]{vietnam}
 \usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{float}
 \usepackage{algorithm}
 \usepackage{algorithmic}
@@ -45,7 +46,6 @@
     {\large \courseinfo \par}
     \vfill
 \end{titlepage}
-
 % Trang thông tin dự án
 \clearpage
 \thispagestyle{empty}
@@ -58,10 +58,10 @@
         \textbf{Học phần:} & MAT3508 -- Nhập môn Trí tuệ Nhân tạo \\
         \textbf{Học kỳ:} & Học kỳ 1, Năm học 2025-2026 \\
         \textbf{Trường:} & VNU-HUS (Đại học Quốc gia Hà Nội -- Trường Đại học Khoa học Tự nhiên) \\
-        \textbf{Tên dự án:} & {[Nhận diện khuôn mặt]} \\
-        \textbf{Ngày nộp:} & 30/11/2025 \\
-        \textbf{Báo cáo PDF:} & \href{https://github.com/23001853-wq/Employee-Attendance-System-Using-Camera/blob/main/report.pdf}{report.pdf} \\
-        \textbf{Slide thuyết trình:} & \href{https://github.com/23001853-wq/Employee-Attendance-System-Using-Camera/blob/main/slides.pdf}{slides.pdf} \\
+        \textbf{Tên dự án:} & {[Tên dự án của bạn]} \\
+        \textbf{Ngày nộp:} & {[Ngày nộp]} (ví dụ: 30/06/2025) \\
+        \textbf{Báo cáo PDF:} & \href{https://github.com/23001853-wq/Employee-Attendance-System-Using-Camera/blob/main/report.pdf}{Liên kết tới báo cáo PDF trong kho GitHub} \\
+        \textbf{Slide thuyết trình:} & \href{https://github.com/23001853-wq/Employee-Attendance-System-Using-Camera/blob/main/slides.pdf}{Liên kết tới slide thuyết trình trong kho GitHub} \\
         \textbf{Kho GitHub:} & \url{https://github.com/23001853-wq/Employee-Attendance-System-Using-Camera.git}
     \end{tabular}
     \\[2em]
@@ -464,11 +464,25 @@ Dữ liệu được chia theo tỷ lệ:
     \item \textbf{Áp dụng:} Cross-validation được thực hiện trên 3 thuật toán học có giám sát (SVM, KNN, Random Forest) để so sánh độ ổn định trước khi chọn mô hình cuối cùng.
 \end{itemize}
 
+\subsubsection{Tối ưu hóa siêu tham số với GridSearchCV}
+Để tìm ra cấu hình tối ưu cho SVM, hệ thống sử dụng \textbf{GridSearchCV} với 5-fold Cross-Validation trên toàn bộ dataset (1000 ảnh, 20 nhân viên):
+
+\begin{itemize}
+    \item \textbf{Lưới tham số:} C = [0.1, 1, 5, 10, 50, 100], gamma = ['scale', 'auto', 0.01, 0.1, 1]
+    \item \textbf{Tổng số tổ hợp:} 30 cấu hình × 5 folds = 150 lần huấn luyện
+    \item \textbf{Kết quả tối ưu:} 
+    \begin{itemize}
+        \item C = 5
+        \item Gamma = 1
+        \item CV Accuracy = 93.90\%
+    \end{itemize}
+\end{itemize}
+
 \subsubsection{Huấn luyện 5 thuật toán}
 Script \texttt{02\_face\_training.py} huấn luyện và so sánh 5 thuật toán:
 
 \begin{enumerate}
-    \item \textbf{SVM (RBF Kernel):} Sử dụng Grid Search để tìm siêu tham số tối ưu ($C=1.5$, $\gamma=\text{scale}$).
+    \item \textbf{SVM (RBF Kernel):} Sử dụng tham số tối ưu từ Grid Search ($C=5$, $\gamma=1$).
     \item \textbf{KNN:} $k=5$ láng giềng, metric Euclidean.
     \item \textbf{Random Forest:} 100 cây quyết định, random\_state=42.
     \item \textbf{Cosine Similarity:} Template matching dựa trên vector trung bình (centroid) của mỗi lớp.
@@ -552,29 +566,36 @@ Bảng dưới đây tổng hợp kết quả thực nghiệm trên tập test (
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.9\textwidth]{ketquatt1.png}
+    \includegraphics[width=0.9\textwidth]{kquahl.png}
     \caption{So sánh độ chính xác và thời gian thực thi của các thuật toán}
     \label{fig:model-compare}
 \end{figure}
 
 \begin{table}[h!]
     \centering
-    % Nếu bảng quá rộng, dùng \small hoặc resizebox
     \small
-    \begin{tabular}{lccc}
+    \begin{tabular}{lcccccc}
         \hline
-        \textbf{Thuật toán} & \textbf{Độ chính xác (\%)} & \textbf{Thời gian xử lý (s)} & \textbf{Ghi chú} \\
+        \textbf{Thuật toán} & \textbf{CV Acc (\%)} & \textbf{Test Acc (\%)} & \textbf{Precision (\%)} & \textbf{Recall (\%)} & \textbf{F1 (\%)} & \textbf{Inference (s)} \\
         \hline
-        SVM (RBF Kernel)     & 97      & 0.07   & Tốt nhất, chấp nhận được \\
-        KNN (k=5)            & 97.5      & 0.04   & Nhanh hơn SVM \\
-        Random Forest        & 96      & 0.005   & Nhanh nhất (giám sát) \\
-        Cosine Similarity    & 80      & 0.002   & Không giám sát, nhanh \\
-        L2 Distance          & 80      & 0.0015   & Nhanh nhất tất cả \\
+        SVM (RBF) \textbf{$\star$} & 93.90  & 97.50  & 97.88  & 97.50  & 97.54  & 0.0578 \\
+        KNN (k=5)           & 76.00  & 97.00  & 97.56  & 97.00  & 96.95  & 0.5729 \\
+        Random Forest       & 77.90  & 94.50  & 95.36  & 94.50  & 94.47  & 0.0048 \\
+        Cosine Similarity   & -      & 80.50  & -      & -      & -      & 0.0010 \\
+        L2 Distance         & -      & 80.50  & -      & -      & -      & 0.0021 \\
         \hline
     \end{tabular}
-    \caption{So sánh các thuật toán nhận diện khuôn mặt (Test Accuracy)}
+    \caption{So sánh độ chính xác và thời gian thực thi của các thuật toán}
     \label{tab:model-compare}
 \end{table}
+
+\textbf{Ghi chú:} 
+\begin{itemize}
+    \item CV Acc: Cross-Validation Accuracy (5-fold) - đánh giá độ ổn định
+    \item Test Acc: Độ chính xác trên tập test độc lập (200 ảnh)
+    \item Inference: Thời gian xử lý 200 ảnh test (trung bình 5 lần đo)
+    \item Cosine/L2: Phương pháp học không giám sát, không có CV
+\end{itemize}
 
 \subsubsection{Kết quả Cross-Validation (5-Fold)}
 
@@ -587,12 +608,12 @@ Bảng dưới đây tổng hợp kết quả thực nghiệm trên tập test (
         \hline
         \textbf{Mô hình} & \textbf{Mean Accuracy} & \textbf{Std Dev} \\
         \hline
-        SVM (RBF Kernel)  & 89.30\% & ±7.58\% \\
-        Random Forest     & 76.80\% & ±4.85\% \\
-        KNN (k=5)         & 75.30\% & ±9.84\% \\
+        SVM (RBF Kernel) \textbf{$\star$} & 93.90\% & ±8.25\% \\
+        Random Forest       & 77.90\% & ±5.02\% \\
+        KNN (k=5)           & 76.00\% & ±9.03\% \\
         \hline
     \end{tabular}
-    \caption{Kết quả Cross-Validation 5-Fold trên toàn bộ dataset (1000 ảnh, 20 nhân viên)}
+    \caption{Kết quả đánh giá mô hình bằng Cross-Validation 5-Fold }
     \label{tab:cross-validation}
 \end{table}
 
@@ -600,68 +621,68 @@ Bảng dưới đây tổng hợp kết quả thực nghiệm trên tập test (
 
 Dựa trên kết quả thực nghiệm từ bảng so sánh và quá trình Cross-Validation trên dataset mở rộng (1000 ảnh, 20 nhân viên), các thuật toán được phân tích chi tiết như sau:
 
-\subsubsection{SVM (RBF Kernel)}
+\subsubsection{SVM (RBF Kernel) - Model được chọn}
 
 \textbf{Ưu điểm:}
 \begin{itemize}
-    \item \textbf{Độ chính xác cao nhất:} Đạt 97.5\% trên test set, đồng thời có Cross-Validation accuracy = 89.30\% với std dev ±7.58\%, chứng tỏ mô hình ổn định trên nhiều phân chia dữ liệu khác nhau. Độ chênh lệch giữa CV và Test là 7.6\%, cho thấy test set có phân bố thuận lợi hơn các fold trong CV.
+    \item \textbf{Độ chính xác và ổn định cao nhất:} Đạt 97.50\% trên test set, 93.90\% trên Cross-Validation với độ lệch chuẩn  ±8.25\%. Độ chênh CV-Test là 3.60\%, chứng tỏ mô hình không bị overfitting và hoạt động ổn định trên nhiều phân chia dữ liệu.
     
-    \item \textbf{Khả năng tổng quát hóa tốt:} RBF Kernel giúp SVM xử lý được dữ liệu không tuyến tính trong không gian 1280 chiều. Kết hợp với chuẩn hóa L2, mô hình phân tách các lớp hiệu quả ngay cả khi có thay đổi về ánh sáng và góc chụp.
+    \item \textbf{Tối ưu hóa tự động:} Sử dụng GridSearchCV để tìm tham số tối ưu (C=5, gamma=1) thay vì thử nghiệm thủ công, đảm bảo hiệu suất tốt nhất trong không gian tìm kiếm.
     
-    \item \textbf{Thời gian xử lý chấp nhận được:} 0.07 giây cho 200 ảnh test đủ nhanh cho ứng dụng real-time điểm danh, cân bằng giữa độ chính xác và tốc độ.
+    \item \textbf{Khả năng tổng quát hóa tốt:} RBF Kernel với gamma=1 tạo ra ranh giới quyết định linh hoạt, phù hợp với phân bố vector đặc trưng 1280D sau chuẩn hóa L2.
     
-    \item \textbf{Hoạt động tốt với dữ liệu nhỏ:} Với chỉ 50 ảnh/nhân viên, SVM vẫn học được ranh giới phân lớp rõ ràng mà không bị overfitting nghiêm trọng.
+    \item \textbf{Cân bằng precision-recall:} F1-Score = 97.54\% cho thấy mô hình cân bằng tốt giữa việc tránh nhận nhầm và tránh bỏ sót.
+    
+    \item \textbf{Thời gian inference hợp lý:} 0.0578s cho 200 ảnh (0.289ms/ảnh) đủ nhanh cho real-time, tốt hơn KNN gần 10 lần.
 \end{itemize}
 
 \textbf{Nhược điểm:}
 \begin{itemize}
-    \item \textbf{Thời gian huấn luyện tăng khi scale:} Độ phức tạp $O(N^2)$ đến $O(N^3)$ khiến việc huấn luyện chậm khi số lượng nhân viên và ảnh tăng lên đáng kể.
+    \item \textbf{Chi phí huấn luyện cao:} GridSearchCV với 150 lần huấn luyện tốn khá nhiều thời gian, nhưng chỉ cần chạy một lần.
     
-    \item \textbf{Cần điều chỉnh siêu tham số:} Phải tìm $C$ và $\gamma$ tối ưu tránh học quá khớp, tốn thời gian thực nghiệm ban đầu.
+    \item \textbf{Khó scale khi tăng dữ liệu:} Độ phức tạp $O(N^2)$ đến $O(N^3)$ khiến thời gian huấn luyện tăng nhanh khi vượt quá 5000 ảnh.
 \end{itemize}
 
 \subsubsection{K-Nearest Neighbors (KNN)}
 
 \textbf{Ưu điểm:}
 \begin{itemize}
-    \item \textbf{Không cần huấn luyện:} Lazy learning giúp triển khai nhanh chóng, phù hợp khi cần thêm nhân viên mới mà không cần huấn luyện lại.
+    \item \textbf{Không cần huấn luyện:} Lazy learning giúp triển khai nhanh, dễ thêm nhân viên mới.
     
-    \item \textbf{Đơn giản, dễ hiểu:} Thuật toán trực quan, dễ giải thích cho người dùng không chuyên.
+    \item \textbf{Đơn giản, trực quan:} Dễ hiểu và giải thích cho người không chuyên.
     
-    \item \textbf{Tốc độ dự đoán nhanh:} 0.04s cho 200 ảnh test, nhanh hơn SVM gần 2 lần, phù hợp cho real-time.
-    
-    \item \textbf{Độ chính xác cao:} Đạt 97.5\% với cấu hình k=5.
+    \item \textbf{Độ chính xác test cao:} 97.00\% trên test set, chỉ thấp hơn SVM 0.5\%.
 \end{itemize}
 
 \textbf{Nhược điểm:}
 \begin{itemize}
-    \item \textbf{Độ tin cậy thấp nhất:} Cross-Validation cho 75.30\% (±9.84\%) - độ lệch chuẩn cao nhất trong các thuật toán. Chênh lệch CV-Test lên đến 20.1\% (test: 97.5\%, CV: 75.30\%), cho thấy KNN rất nhạy cảm với cách chia dữ liệu và không ổn định,dẫn đến rất học vẹt. Khi tăng nhân viên,độ chính xác trung bình càng thấp nặng nề.
+    \item \textbf{Không ổn định - Vấn đề nghiêm trọng:} CV Accuracy chỉ 76.00\% (±10.66\%), chênh lệch CV-Test lên đến 21\% (97\% - 76\%). Độ lệch chuẩn ±10.66\% cao nhất trong tất cả các thuật toán, chứng tỏ KNN "học vẹt" test set và không đáng tin cậy khi triển khai thực tế.
     
-    \item \textbf{Chậm khi scale lên:} Với tập dữ liệu lớn, phải tính khoảng cách đến tất cả mẫu huấn luyện, làm tốc độ giảm mạnh.
+    \item \textbf{Chậm nhất trong thí nghiệm:} 0.5729s cho 200 ảnh (2.86ms/ảnh), gần 10 lần chậm hơn SVM, không phù hợp cho real-time khi scale lên.
     
-    \item \textbf{Nhạy cảm với nhiễu:} Một vài ảnh chất lượng kém có thể ảnh hưởng lớn đến kết quả phân loại do cơ chế "bầu chọn đa số".
+    \item \textbf{Nhạy cảm với nhiễu:} Ảnh chất lượng kém trong k láng giềng gần nhất có thể làm sai dự đoán.
     
-    \item \textbf{Curse of dimensionality:} Trong không gian 1280 chiều, khái niệm "gần nhất" trở nên mơ hồ, hiệu suất giảm so với không gian chiều thấp.
+    \item \textbf{Curse of dimensionality:} Trong không gian 1280D, khoảng cách Euclid mất ý nghĩa, các điểm đều "xa nhau" tương đương.
 \end{itemize}
 
 \subsubsection{Random Forest}
 
 \textbf{Ưu điểm:}
 \begin{itemize}
-    \item \textbf{Kháng nhiễu tốt:} Cross-Validation đạt 76.80\% (±4.85\%) - std dev thấp nhất trong 3 thuật toán, cho thấy mô hình ensemble giảm được overfitting và ổn định nhất qua các fold. Random Forest hưởng lợi từ dataset lớn hơn.
+    \item \textbf{Kháng nhiễu tốt:} Cross-Validation đạt 77.9\% (±5.02\%) - std dev thấp nhất trong 3 thuật toán, cho thấy mô hình ensemble giảm được overfitting và ổn định nhất qua các fold. Random Forest hưởng lợi từ dataset lớn hơn.
     
     \item \textbf{Ít cần điều chỉnh tham số:} Hoạt động tốt với cấu hình mặc định (100 cây), không phức tạp như SVM.
     
     \item \textbf{Xử lý được dữ liệu phi tuyến:} Cấu trúc cây quyết định tự nhiên học được các ranh giới phức tạp.
     
-    \item \textbf{Tốc độ xử lý nhanh :} 0.005s cho 200 ảnh test, nhanh hơn SVM gần 13 lần và KNN 7 lần - lý tưởng cho real-time.
+    \item \textbf{Tốc độ xử lý nhanh :} 0.005s cho 200 ảnh test.
 \end{itemize}
 
 \textbf{Nhược điểm:}
 \begin{itemize}
     \item \textbf{Độ chính xác thấp hơn SVM:} 96\% trên test set.
     
-    \item \textbf{Chênh lệch CV-Test lớn:} Test accuracy cao hơn 10\% CV accuracy, cho thấy có dấu hiệu overfitting nhẹ.
+    \item \textbf{Chênh lệch CV-Test lớn:} Test accuracy gần  20\% CV accuracy, cho thấy có dấu hiệu overfitting cũng khá nặng.
     
     \item \textbf{Mô hình nặng:} Cần lưu trữ 100 cây quyết định, tốn bộ nhớ hơn SVM.
     
@@ -672,20 +693,19 @@ Dựa trên kết quả thực nghiệm từ bảng so sánh và quá trình Cro
 
 \textbf{Ưu điểm:}
 \begin{itemize}
-    \item \textbf{Tốc độ rất nhanh:} Cosine: 0.002s, L2: 0.0015s cho 200 ảnh test. Nhanh hơn SVM 22-50 lần. Chỉ cần so sánh với 20 vector đại diện (centroids) thay vì hàng trăm mẫu.
+    \item \textbf{Tốc độ rất nhanh:} Cosine: 0.001s, L2: 0.0021s cho 200 ảnh test. Nhanh hơn SVM 22-50 lần. Chỉ cần so sánh với 20 vector đại diện (centroids) thay vì hàng trăm mẫu.
     
     \item \textbf{Không cần huấn luyện phức tạp:} Học không giám sát, chỉ cần tính vector trung bình cho mỗi lớp. Dễ triển khai và bảo trì.
     
     \item \textbf{Phù hợp với dữ liệu ít:} Hoạt động được khi mỗi nhân viên chỉ có 10-50 ảnh, không yêu cầu dữ liệu lớn như deep learning.
     
-    \item \textbf{Kết quả tương đương:} Cosine 80\% và L2 80\% cho kết quả tương đương do tính chất toán học: minimize L2 distance $\approx$ maximize Cosine similarity khi đã chuẩn hóa L2.
+    \item \textbf{Kết quả tương đương:} Cosine 80.5\% và L2 80.5\% cho kết quả tương đương do tính chất toán học: minimize L2 distance $\approx$ maximize Cosine similarity khi đã chuẩn hóa L2.
     
-    \item \textbf{L2 Distance nhanh nhất:} 0.0015s là nhanh nhất trong tất cả các thuật toán, phù hợp cho ứng dụng cần tốc độ tối đa.
 \end{itemize}
 
 \textbf{Nhược điểm:}
 \begin{itemize}
-    \item \textbf{Độ chính xác thấp nhất:} Cosine 80\%, L2 80\% - kém SVM tới ~17\%. Đây là điểm yếu nghiêm trọng, không phù hợp cho môi trường sản xuất yêu cầu độ tin cậy cao.
+    \item \textbf{Độ chính xác thấp nhất:} Đây là điểm yếu nghiêm trọng, không phù hợp cho môi trường sản xuất yêu cầu độ tin cậy cao.
     
     \item \textbf{Không học được ranh giới phức tạp:} Chỉ dựa vào "trung bình" của mỗi lớp, không tận dụng được cấu trúc phân bố phức tạp như SVM hay Random Forest.
     
@@ -696,23 +716,16 @@ Dựa trên kết quả thực nghiệm từ bảng so sánh và quá trình Cro
     \item \textbf{Không phù hợp thực tế:} Với độ chính xác chỉ xấp xỉ 80\%,- không chấp nhận được trong ứng dụng thương mại.
 \end{itemize}
 
-\subsubsection{Kết luận từ phân tích}
-
-Dựa trên các kết quả và phân tích trên dataset  (1000 ảnh, 20 nhân viên):
+\subsubsection{Kết luận tạm thời}
 
 \begin{itemize}
-    \item \textbf{SVM (RBF Kernel)} là lựa chọn tối ưu nhất cho hệ thống điểm danh thực tế, đạt độ chính xác cao nhất (97\%), độ ổn định tốt (CV: 89.30\%±7.58\%, chênh lệch CV-Test ~7\%) và tốc độ chấp nhận được (0.07s cho 200 ảnh test). SVM scale tốt khi tăng số lượng nhân viên.
+    \item \textbf{SVM (RBF Kernel)} là mô hình tối ưu cho hệ thống nhận diện khuôn mặt trong bài toán điểm danh.
+.
     
-    \item \textbf{KNN (k=5)} có test accuracy cao nhất (97.5\%) nhưng CV accuracy rất thấp (76.38\%±9.05\%) với chênh lệch lên đến ~19\%. Điều này chứng tỏ KNN "may mắn" trên test set cụ thể này và KHÔNG ĐỦ TIN CẬY để triển khai thực tế.
-    
-    \item \textbf{Random Forest} phù hợp khi cần tốc độ nhanh nhất (0.004s - nhanh gấp 12.5 lần SVM) và chấp nhận độ chính xác thấp hơn một chút (94.8\%). Ưu điểm là kháng nhiễu tốt và ít cần điều chỉnh tham số.
-    
-    \item \textbf{Cosine/L2 Distance} KHÔNG phù hợp cho ứng dụng thực tế do độ chính xác quá thấp (~80\%). Chỉ nên dùng cho prototype hoặc demo nhanh, không nên triển khai production.
+    \item \textbf{Cosine/L2 Distance} KHÔNG phù hợp cho ứng dụng thực tế do độ chính xác quá thấp (~80\%). Chỉ nên dùng cho demo nhanh không cần huấn luyện. Không nên triển khai sản xuất vì dễ nhầm.
+    \item Toàn bộ pipeline từ nhận diện đến ghi nhận công làm việc vận hành ổn định, chính xác và đủ nhanh cho triển khai thật.
 \end{itemize}
 
-\textbf{Kết luận tạm thời:} Sử dụng \textbf{SVM (RBF Kernel)} cho hệ thống chính thức.
-
-    Toàn bộ pipeline từ nhận diện đến ghi nhận công làm việc vận hành ổn định, chính xác và đủ nhanh cho triển khai thật.
 
 \subsection{Ma trận nhầm lẫn - SVM (RBF Kernel)}
 
@@ -812,7 +825,7 @@ Sau khi nhận diện khuôn mặt thành công, hệ thống tiến hành ghi n
     \begin{itemize}
         \item Hệ thống cập nhật thời gian vào cột \texttt{TimeOut}.
     \end{itemize}
-    \item Độ tin cậy < 0.55 → hệ thống không ghi điểm danh và gán nhãn \textit{Unknown}. Ngưỡng 0.55 được chọn vì cho khả năng phát hiện người lạ tốt qua thực nghiệm, đồng thời vẫn nhận diện chính xác nhân viên nhằm hạn chế nguy cơ kẻ lạ đột nhập.
+    \item Độ tin cậy < 0.5 → hệ thống không ghi điểm danh và gán nhãn \textit{Unknown}. Ngưỡng 0.5 được chọn vì cho khả năng phát hiện người lạ tốt qua thực nghiệm, đồng thời vẫn nhận diện chính xác nhân viên nhằm hạn chế nguy cơ kẻ lạ đột nhập.
 
 \end{enumerate}
 
@@ -825,11 +838,50 @@ Hệ thống đảm bảo:
 \subsection*{Nhận xét}
 \begin{itemize}
     \item Hệ thống nhận diện chính xác 100\% các khuôn mặt thuộc nhân viên có trong cơ sở dữ liệu.
-    \item Các trường hợp người lạ được loại bỏ đúng nhờ ngưỡng tin cậy 0.55.
-    \item Xác suất dự đoán trung bình cao, ổn định ngay cả khi ảnh File 03 có độ sáng và góc nhìn khác ảnh huấn luyện.
-    \item Thời gian xử lý trung bình khoảng \textbf{0.07 giây/ảnh}, đáp ứng yêu cầu real-time.
+    \item Các trường hợp người lạ được loại bỏ đúng nhờ ngưỡng tin cậy được tối ưu.
+    \item Xác suất dự đoán trung bình cao, ổn định ngay cả khi ảnh có độ sáng và góc nhìn khác ảnh huấn luyện.
+    \item Thời gian xử lý trung bình khoảng \textbf{0.0578s/200 ảnh (0.289ms/ảnh)}, đáp ứng yêu cầu real-time.
     \item Bounding box ổn định, độ nhiễu thấp và không phát sinh nhầm lẫn chéo giữa các nhân viên.
     \item Chức năng \textbf{Check-in/Check-out} hoạt động chính xác, tự động hoá hoàn toàn quy trình điểm danh.
+\end{itemize}
+
+\section{Đánh giá An ninh - Threshold Optimization}
+
+Để đảm bảo hệ thống vừa chính xác với nhân viên vừa an toàn trước người lạ, hệ thống đã được kiểm tra với nhiều mức ngưỡng khác nhau:
+
+\begin{table}[h!]
+    \centering
+    \small
+    \begin{tabular}{cccc}
+        \hline
+        \textbf{Threshold} & \textbf{FNR - Từ chối NV (\%)} & \textbf{Cửa mở đúng (\%)} & \textbf{FPR - Người lạ lọt vào (\%)} \\
+        \hline
+        0.15 & 3.00  & 97.00 & 98.90 \\
+        0.36 & 3.50  & 96.50 & 0.00 \\
+        0.50 & 8.50  & 91.50 & 0.00 \\
+        0.90 & 93.00 & 7.00  & 0.00 \\
+        \hline
+    \end{tabular}
+    \caption{Đánh giá an ninh với các ngưỡng khác nhau (Test: 200 nhân viên, Minh họa: 1000 người lạ)}
+    \label{tab:security-threshold}
+\end{table}
+
+\textbf{Phân tích:}
+\begin{itemize}
+    \item \textbf{Threshold = 0.15:} Mở cửa cho gần như tất cả (97\% nhân viên), nhưng 98.9\% người lạ cũng lọt vào → Không an toàn.
+    
+    \item \textbf{Threshold = 0.36 (Tối ưu):} Cân bằng hoàn hảo - 96.50\% nhân viên vào được, 0\% người lạ lọt vào. Tuy nhiên ta lấy minh họa người lạ nên đặc điểm hoàn toàn khác.Nên đôi khi có anh em giống nhau dê nhận nhầm.
+    
+    \item \textbf{Threshold = 0.50:} Tốt nhất - từ chối 8.5\% ảnh nhân viên trên 200 ảnh không đáng kể , đảm bảo nhân viên vẫn điểm danh nhanh tốt và nhận diện phát hiện người lạ tốt nhất.
+    
+    \item \textbf{Threshold = 0.90:} Vô dụng - từ chối 93\% nhân viên thật.
+\end{itemize}
+
+\textbf{Kết luận:} Hệ thống sử dụng \textbf{Threshold = 0.50} để đảm bảo:
+\begin{itemize}
+    \item False Negative Rate (FNR) chỉ 8.5\% - chấp nhận được trong thực tế
+    \item False Positive Rate (FPR) = 0\% - an toàn tuyệt đối trước người lạ
+    \item Độ tin cậy cao trong môi trường sản xuất thực tế
 \end{itemize}
 
 

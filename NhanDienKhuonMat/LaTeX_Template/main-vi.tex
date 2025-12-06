@@ -791,8 +791,8 @@ Trong giai đoạn nhận diện, hệ thống thực hiện quy trình sau:
         \item Lấy \textbf{ID các lớp } từ mô hình.
         \item Lấy \textbf{độ tin cậy} bằng hàm \texttt{predict\_proba}.
     \end{itemize}
-    \item \textbf{Áp dụng ngưỡng tin cậy 0.55}:  
-    Nếu xác suất < 0.55 → gán nhãn \textit{Unknown}.
+    \item \textbf{Áp dụng ngưỡng tin cậy 0.5}:  
+    Nếu xác suất < 0.5 → gán nhãn \textit{Unknown}.
     \item \textbf{Truy vấn thông tin nhân viên từ SQL Server} dựa theo ID trả về tên khi nhận diện.
 % (Không có danh sách con ở đây, xóa itemize rỗng)
 \end{enumerate}
@@ -1047,7 +1047,7 @@ Dựa trên các hạn chế đã phân tích, hướng phát triển tiếp the
     \item Chạy script \texttt{03\_face\_recognition.py}.
     \item Camera mở và phát hiện khuôn mặt theo thời gian thực.
     \item Hệ thống hiển thị: tên, ID nhân viên, thời gian check-in/check-out.
-    \item Nếu độ tin cậy < 0.55 → gán nhãn \textit{Unknown} và không ghi điểm danh.
+    \item Nếu độ tin cậy < 0.5 → gán nhãn \textit{Unknown} và không ghi điểm danh.
 
 \end{enumerate}
 \subsection*{04. Thao tác thông qua web với Streamlit}
@@ -1082,7 +1082,7 @@ Bảng minh họa chi tiết độ chính xác từng thuật toán trên từng
 
 \section{Ghi chú quan trọng}
 \begin{itemize}
-    \item Ngưỡng tin cậy 0.55 được chọn dựa trên thực nghiệm, vừa nhận diện chính xác nhân viên, vừa phát hiện người lạ.
+    \item Ngưỡng tin cậy 0.5 được chọn dựa trên thực nghiệm, vừa nhận diện chính xác nhân viên, vừa phát hiện người lạ.
     \item Check-in/check-out được ghi chính xác, không trùng lặp, lưu trong SQL Server.
     \item Các mô hình khác (KNN, Random Forest, Cosine, L2) được giữ để tham khảo nhưng SVM (RBF Kernel) là mô hình tối ưu.
     \item Có thể mở rộng hoặc tối ưu tốc độ bằng TensorRT/ONNX Runtime cho real-time.
